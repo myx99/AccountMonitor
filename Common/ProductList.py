@@ -1,18 +1,17 @@
-import Common.MySQLConnector as ms
 import pandas as pd
-
-import Lib.Common.GlobalConfig as cf
+from Common.GlobalConfig import GlobalConfig
+from Common.MySQLConnector import MySQLConnector
 
 
 class ProductList(object):
 
     def __init__(self):
-        config = cf.GlobalConfig()
+        config = GlobalConfig()
         self.table = config.getConfig('mysql_tables', 'product')
         self.sqlStatement = "select * from %s" % self.table
         # print(self.sqlStatement)
         self.df = pd.DataFrame()
-        self.mysql = ms.MySQLConnection()
+        self.mysql = MySQLConnector()
         self.conn = self.mysql.getConn()
 
     def getProductTable(self):

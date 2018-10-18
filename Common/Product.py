@@ -1,4 +1,4 @@
-import Lib.Common.GlobalConfig as cf
+from Common.GlobalConfig import GlobalConfig
 
 
 class Product(object):
@@ -8,7 +8,7 @@ class Product(object):
         self.EndDate = ''
 
     def getProduct(self, product_number):
-        config = cf.GlobalConfig()
+        config = GlobalConfig()
         self.ProductID = config.getConfig(product_number, 'ID')
         self.StartDate = config.getConfig(product_number, 'Start_date')
         self.EndDate = config.getConfig(product_number, 'End_date')

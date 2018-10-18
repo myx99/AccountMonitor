@@ -1,21 +1,19 @@
 import configparser
-
-
-config_path = "..\\Configs\\"
-configfile = "sql_BPI.ini"
-path = config_path + configfile
+from Common.GlobalConfig import GlobalConfig
 
 
 class APIS(object):
 
     def __init__(self):
+        config = GlobalConfig()
+        path = config.getConfig('SubConfigPath', 'API_conf_win')
         self.cp = configparser.ConfigParser()
         self.cp.read(path, encoding='utf-8-sig')
 
     def getConfig(self, section, key):
         return self.cp.get(section, key)
 
-    def setBPIS(self, productID, date, datatype):
+    def setAPIS(self, productID, date, datatype):
         table = self.getConfig('Table_Info', 'table')
         column_date = self.getConfig("Table_Info", "column_date")
         column_productid = self.getConfig("Table_Info", "column_productid")
@@ -40,7 +38,7 @@ if __name__ == '__main__':
     input_date = '2018-09-21'
     datatype = 'Equity_NAV_Percentage'
     m = APIS()
-    print(m.setBPIS(input_productid, input_date, datatype))
+    print(m.setAPIS(input_productid, input_date, datatype))
 
 
 

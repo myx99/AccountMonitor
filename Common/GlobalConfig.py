@@ -3,6 +3,7 @@ import configparser
 
 # Public Configurations
 config_path = "..\\Configs\\"
+# config_path = "/home/PerformanceAnalysis/Performance/AccountMonitor/Configs/"
 configfile = "config.ini"
 path = config_path + configfile
 # print(path)
@@ -30,7 +31,7 @@ class GlobalConfig(object):
 
 if __name__ == '__main__':
     m = GlobalConfig()
-    host = m.getConfig('mysql', 'host')
+    host = m.getConfig('product', 'list')
     port = m.getIntConfig("mysql", "port")
     user = m.getConfig("mysql", "user")
     password = m.getConfig("mysql", "passwd")

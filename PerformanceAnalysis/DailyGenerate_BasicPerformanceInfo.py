@@ -1,5 +1,5 @@
-import Lib.SQLStatement.BPI_select as SB
-from Lib import Common as CM
+from Common.MySQLConnector import MySQLConnector
+from SQLStatement.BPI_select import BPIS
 
 
 def composeArray(pid, bizdate):
@@ -7,8 +7,8 @@ def composeArray(pid, bizdate):
                 'Daily_Return', 'MTD_Return', 'YTD_Return',
                 'Equity_NAV_Percentage', 'Bond_NAV_percentage', 'Derivative_NAV_percentage', 'Fund_NAV_percentage']
     BIPS_daily_data = [bizdate, pid]
-    b1 = SB.BPIS()
-    s1 = CM.MySQLConnector()
+    b1 = BPIS()
+    s1 = MySQLConnector()
     s2 = s1.getConn()
     cursor = s2.cursor()
 
@@ -36,7 +36,7 @@ def insertArray(arrayBPI):
     # print(insert_values)
 
     # start mysql connection
-    s1 = CM.MySQLConnector()
+    s1 = MySQLConnector()
     s2 = s1.getConn()
     cursor = s2.cursor()
 

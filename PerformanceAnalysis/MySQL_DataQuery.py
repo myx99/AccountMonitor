@@ -1,6 +1,6 @@
 import pandas as pd
 
-from Lib import Common as ms
+import Common as ms
 
 
 def db_query(fund_id, startdate, enddate, scale):

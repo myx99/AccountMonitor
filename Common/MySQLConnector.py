@@ -1,13 +1,12 @@
 import pymysql
-
-import Lib.Common.GlobalConfig as cf
+from Common.GlobalConfig import GlobalConfig
 
 
 class MySQLConnector(object):
 
     def __init__(self):
         # print("Setting configurations")
-        config = cf.GlobalConfig()
+        config = GlobalConfig()
         self.host = config.getConfig('mysql', 'host')
         self.port = config.getIntConfig('mysql', 'port')
         self.user = config.getConfig('mysql', 'user')
