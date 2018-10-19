@@ -38,6 +38,8 @@ class Email(object):
         msg['from'] = self.from_addr
         msg['to'] = self.recipient
 
+        # print(self.recipient)
+
         content_html = MIMEText(html_msg, "html", "utf-8")
         msg.attach(content_html)
 

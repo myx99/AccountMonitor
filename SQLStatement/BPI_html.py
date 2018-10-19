@@ -7,7 +7,7 @@ class BPIH(object):
 
     def __init__(self):
         config = GlobalConfig()
-        path = config.getConfig('SubConfigPath', 'BPI_conf_win')
+        path = config.getConfig('SubConfigPath', 'BPI_conf_linux')
         self.cp = configparser.ConfigParser()
         self.cp.read(path, encoding='utf-8-sig')
 
