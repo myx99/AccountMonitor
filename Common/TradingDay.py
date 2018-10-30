@@ -8,7 +8,6 @@ class TradingDay(object):
     def __init__(self):
         self.today = datetime.date.today().strftime("%Y%m%d")
 
-
     def getLastTradingDay(self):
         oc = OracleConnector()
         connection = oc.getConn()
@@ -17,7 +16,6 @@ class TradingDay(object):
         tradeday = df['TRADE_DAYS'][0]
         oc.closeConn()
         return tradeday
-
 
     def getDuration(self, start, end):
         oc = OracleConnector()
@@ -28,11 +26,29 @@ class TradingDay(object):
         oc.closeConn()
         return tradedays
 
+    def getProductDurationSinceFounded(self, productid, enddate=None):
+        gc = GlobalConfig()
+        start_temp = gc.getConfig(productid, 'Start_date')
+        start = start_temp.replace("-", "")
+        end_temp = gc.getConfig(productid, 'End_date')
+        end_temp2 = end_temp.replace("-", "")
+        lasttradeday = self.getLastTradingDay()
+        if enddate is None:
+            if end_temp2 == "notyet":
+                end = lasttradeday
+            elif lasttradeday > end_temp2:
+                end = end_temp2
+        else:
+            end = enddate
+        tradedays = self.getDuration(start, end)
+        return tradedays
+
 
 if __name__ == '__main__':
     m = TradingDay()
-    print(m.getDuration("20160909","20181018"))
+    # print(m.getDuration("20160909","20181018"))
     print(m.getLastTradingDay())
+    print(m.getProductDurationSinceFounded("FB0003", "20170710"))
 
 
 

@@ -2,62 +2,66 @@ from Common.MySQLConnector import MySQLConnector
 from SQLStatement.BPI_select import BPIS
 
 
-def composeArray(pid, bizdate):
-    datatype = ['TotalAsset', 'NAV', 'Unit_NAV', 'Accumulated_NAV',
-                'Daily_Return', 'MTD_Return', 'YTD_Return',
-                'Equity_NAV_Percentage', 'Bond_NAV_percentage', 'Derivative_NAV_percentage', 'Fund_NAV_percentage']
-    BIPS_daily_data = [bizdate, pid]
-    b1 = BPIS()
-    s1 = MySQLConnector()
-    s2 = s1.getConn()
-    cursor = s2.cursor()
+class DGBPI(object):
+    def __init__(self):
+        self.bpis = BPIS()
+        datatype_tmp = self.bpis.getConfig('BPI_table', 'columns')
+        self.datatype = datatype_tmp.split(", ")
+        # print(self.datatype)
+        self.BIPS_daily_data = []
+        self.ms = MySQLConnector()
+        self.msc = self.ms.getConn()
+        self.cursor = self.msc.cursor()
 
-    for dt in datatype:
-        b2 = b1.setBPIS(pid, bizdate, dt)
-        # print(b2)
-        cursor.execute(b2)
-        value = cursor.fetchone()
-        # print(value)
-        if value is not None:
-            value = float(value[0])
+    def composeArray(self, pid, bizdate):
+        self.BIPS_daily_data = [bizdate, pid]
+
+        # ms = MySQLConnector()
+        # msc = ms.getConn()
+        # cursor = msc.cursor()
+
+        for dt in self.datatype:
+            sqls = self.bpis.setBPIS(pid, bizdate, dt)
+            # print(sqls)
+            self.cursor.execute(sqls)
+            value = self.cursor.fetchone()
+            # print(value)
+            if value is not None:
+                append_value = float(value[0])
+            else:
+                append_value = 0
+            # print(append_value)
+            self.BIPS_daily_data.append(append_value)
+        print(self.BIPS_daily_data)
+        # cursor.close()
+        # ms.closeConn()
+        # return self.BIPS_daily_data
+
+    def insertArray(self):
+        # format list to tuple
+        insert_values = tuple(self.BIPS_daily_data)
+
+        # start mysql connection
+        # ms = MySQLConnector()
+        # msc = ms.getConn()
+        # cursor = msc.cursor()
+
+        # compile sql statement
+        insert_statement = """insert into Basic_Performance_Info values('%s','%s',%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f)""" % insert_values
+
+        insert_result = self.cursor.execute(insert_statement)
+        self.msc.commit()
+        if insert_result:
+            print("[Success] Insert completed!")
         else:
-            value = 0
-        # print(value)
-        BIPS_daily_data.append(value)
-    return BIPS_daily_data
-    cursor.close()
-    s1.closeConn()
+            print("[Error] Insert failed!")
+        self.cursor.close()
+        self.ms.closeConn()
 
 
-def insertArray(arrayBPI):
-    # format list to tuple
-    insert_values = tuple(arrayBPI)
-    # print(arrayBPI)
-    # print(insert_values)
-
-    # start mysql connection
-    s1 = MySQLConnector()
-    s2 = s1.getConn()
-    cursor = s2.cursor()
-
-    # compile sql statement
-    insert_statement = """insert into Basic_Performance_Info values('%s','%s',%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f)""" % insert_values
-
-    insert_result = cursor.execute(insert_statement)
-    s2.commit()
-    if insert_result:
-        print("[Success] Insert completed!")
-    else:
-        print("[Error] Insert failed!")
-    cursor.close()
-    s1.closeConn()
-
-#
-# pid = 'FB0009'
-# bizdate = '2018-09-21'
-# array = composeArray(pid, bizdate)
-# print(array)
-# insertArray(array)
-
-
-
+if __name__ == '__main__':
+    pid = "FB0001"
+    bizdate = '2017-11-13'
+    dgbpi = DGBPI()
+    dgbpi.composeArray(pid, bizdate)
+    dgbpi.insertArray()

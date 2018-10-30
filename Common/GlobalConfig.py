@@ -2,7 +2,7 @@ import configparser
 
 
 # Public Configurations
-config_path = "..\\Configs\\"
+config_path = "D:/app/mysvn/py/AccountMonitor/Configs/"
 # config_path = "/home/PerformanceAnalysis/Performance/AccountMonitor/Configs/"
 configfile = "config.ini"
 path = config_path + configfile

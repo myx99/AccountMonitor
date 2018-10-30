@@ -2,7 +2,7 @@ import configparser
 from Common.GlobalConfig import GlobalConfig
 
 
-class BPIS(object):
+class Bond(object):
 
     def __init__(self):
         gc = GlobalConfig()
@@ -40,11 +40,3 @@ if __name__ == '__main__':
     datatype = 'Equity_NAV_Percentage'
     m = BPIS()
     print(m.setBPIS(input_productid, input_date, datatype))
-
-
-
-
-
-
-
-

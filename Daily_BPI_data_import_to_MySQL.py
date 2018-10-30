@@ -1,9 +1,9 @@
 from Common.GlobalConfig import GlobalConfig
-from PerformanceAnalysis.BatchImport_BPI import singleDayImport
 from Common.TradingDay import TradingDay
+from PerformanceAnalysis.DailyGenerate_BasicPerformanceInfo import DGBPI
 
 
- # Section 1 - Daily BPI data generate and import to MySQL --------------
+ # ---------- Daily BPI data generate and import to MySQL ------------
 
 #  Get product list fromm config.ini
 gc = GlobalConfig()
@@ -15,10 +15,13 @@ print(product_list)
 td = TradingDay()
 lastTradingDay = td.getLastTradingDay()
 tradeday = "%s-%s-%s" % (lastTradingDay[:4], lastTradingDay[4:6], lastTradingDay[-2:])
+print(tradeday)
 
-
+# Import by designated day, use only when amend history data
 # td = "2018-10-15"
 
-#  Use product id and trade day to generate basic info and finish import to Basic Performnace Info table
+#  Use product id and trade day to generate basic info and finish import to Basic Performance Info table
 for p in product_list:
-    singleDayImport(p, td)
+    dgbpi = DGBPI()
+    dgbpi.composeArray(p, tradeday)
+    dgbpi.insertArray()
