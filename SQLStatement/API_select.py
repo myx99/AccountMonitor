@@ -20,6 +20,7 @@ class APIS(object):
 
     def setAPIS(self, productID, EndDate=None):
         BPI_table = self.getConfig('BPI_table', 'table')
+
         if EndDate is None:
             EndDate = self.ltd
         td = "%s-%s-%s" % (EndDate[:4], EndDate[4:6], EndDate[-2:])
@@ -30,6 +31,7 @@ class APIS(object):
         valuation_table = self.getConfig('Valuation_Table_Info', 'table')
         column_productid = self.getConfig('Valuation_Table_Info', 'column_productid')
         column_date = self.getConfig('Valuation_Table_Info', 'column_date')
+
         if EndDate is None:
             EndDate = self.ltd
         td = "%s-%s-%s" % (EndDate[:4], EndDate[4:6], EndDate[-2:])
@@ -37,11 +39,66 @@ class APIS(object):
                     % (valuation_table, column_productid, productID, column_date, td)
         return self.sqls
 
+    def pureBond(self, productID, EndDate=None):
+        valuation_table = self.getConfig('Valuation_Table_Info', 'table')
+        column_productid = self.getConfig('Valuation_Table_Info', 'column_productid')
+        column_date = self.getConfig('Valuation_Table_Info', 'column_date')
+        column_kmdm = self.getConfig('Valuation_Table_Info', 'column_KMDM')
+        PureBondPrefixList = self.getConfig('Bond', 'PureBondPrefixList')
+        PureBondPrefixList = PureBondPrefixList.split(", ")
+
+        if EndDate is None:
+            EndDate = self.ltd
+        td = "%s-%s-%s" % (EndDate[:4], EndDate[4:6], EndDate[-2:])
+
+        bfc_List = []
+        for bond in PureBondPrefixList:
+            if bond != PureBondPrefixList[-1]:
+                bfc = "%s like '%s_%%' or" % (column_kmdm, bond)
+            else:
+                bfc = "%s like '%s_%%'" % (column_kmdm, bond)
+            bfc_List.append(bfc)
+        BondFuzzyCondition = ' '.join(bfc_List)
+        # print(bfc_List)
+        # print(BondFuzzyCondition)
+        self.sqls = "select * from %s where %s = '%s' and left(%s,10) = '%s' and (%s)" \
+                    % (valuation_table, column_productid, productID, column_date, td, BondFuzzyCondition)
+        return self.sqls
+
+
+    def stock(self, productID, EndDate=None):
+        valuation_table = self.getConfig('Valuation_Table_Info', 'table')
+        column_productid = self.getConfig('Valuation_Table_Info', 'column_productid')
+        column_date = self.getConfig('Valuation_Table_Info', 'column_date')
+        column_kmdm = self.getConfig('Valuation_Table_Info', 'column_KMDM')
+        StockPrefixList = self.getConfig('Bond', 'StockPrefixList')
+        StockPrefixList = StockPrefixList.split(", ")
+
+        if EndDate is None:
+            EndDate = self.ltd
+        td = "%s-%s-%s" % (EndDate[:4], EndDate[4:6], EndDate[-2:])
+
+        bfc_List = []
+        for stock in StockPrefixList:
+            if stock != StockPrefixList[-1]:
+                bfc = "%s like '%s_%%' or" % (column_kmdm, stock)
+            else:
+                bfc = "%s like '%s_%%'" % (column_kmdm, stock)
+            bfc_List.append(bfc)
+        StockFuzzyCondition = ' '.join(bfc_List)
+        # print(bfc_List)
+        # print(BondFuzzyCondition)
+        self.sqls = "select * from %s where %s = '%s' and left(%s,10) = '%s' and (%s)" \
+                    % (valuation_table, column_productid, productID, column_date, td, StockFuzzyCondition)
+        return self.sqls
+
+
 if __name__ == '__main__':
     p = "FB0008"
     m = APIS()
     # sqls = m.setAPIS(p,'20180609')
-    sqls = m.setOriginal(p,'20181023')
+    sqls = m.stock(p,'20181023')
+    print(sqls)
     ms = MySQLConnector()
     connection = ms.getConn()
     df = pd.read_sql(sql=sqls, con=connection)

@@ -3,7 +3,6 @@ from Common.GlobalConfig import GlobalConfig
 
 
 class Bond(object):
-
     def __init__(self):
         gc = GlobalConfig()
         path = gc.getConfig('SubConfigPath', 'BPI_conf_win')
