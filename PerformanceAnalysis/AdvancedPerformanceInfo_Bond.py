@@ -4,67 +4,23 @@ from Common.TradingDay import TradingDay
 from Common.MySQLConnector import MySQLConnector
 from Common.OracleConnector import OracleConnector
 import pandas as pd
+from SQLStatement.API_select import APIS
+import datetime
+import numpy as np
 
 
 class Bond(object):
-    def __init__(self):
-        pass
-    def getBondInfo(self, bondcode):
-        oc = OracleConnector()
+    def __init__(self, df):
+        df.loc[df['L_SCLB'] == 1, 'VC_SCDM'] += '.SH'
+        df.loc[df['L_SCLB'] == 2, 'VC_SCDM'] += '.SZ'
 
+        self.stocklist = df['VC_SCDM'].values
+        print("Stock List : %s" % self.stocklist)
 
-    def singleBondDuration(self, face, coupon, maturity, discount, interest_frequency, paymenttype):  # face 面值 coupon 票面 maturity 至行权年限 discount 最新估值
-        if interest_frequency == 'Y1': # Y1-year, M6-half year, M3-season, M1-monnth
-            frequency = 1
-        elif interest_frequency == 'M6':
-            frequency = 6/12
-        elif interest_frequency == 'M3':
-            frequency = 3/12
-        elif interest_frequency == 'M1':
-            frequency = 1/12
+        enddate = df['D_YWRQ'].iloc[0]
+        self.startdate = (enddate - datetime.timedelta(days=180)).strftime("%Y%m%d")
+        self.enddate = enddate.strftime("%Y%m%d")
+        print("start: %s | end: %s" % (self.startdate, self.enddate))
 
-        if paymenttype == 'simple':
-            pass #TODO:
-        elif paymenttype == 'compound':
-            pass #TODO:
+        self.df_input = df
 
-
-
-        if maturity <= 1:
-            price = (face + (coupon * face)) / (1 + discount) ** maturity
-            dmac = maturity
-            dmod = dmac / (1 + discount)
-        else:
-            discounted_final_cf = (face + (coupon * face)) / (1 + discount) ** maturity
-            dmac = discounted_final_cf * maturity
-            maturity -= frequency
-            x = 0
-
-            while maturity > 0:
-                # discounted_cf = (coupon * face) + (discounted_cf / (1 + discount) ** maturity)
-                discounted_cf = coupon * face / (1 + discount) ** maturity
-                x += discounted_cf
-                dmac = dmac + discounted_cf * maturity
-                maturity -= 1
-
-            price = x + discounted_final_cf
-            dmac = dmac / price
-            dmod = dmac / (1 + discount)
-
-        # print("Price : %.4f" % price)
-        # print("Duration : %.4f" % dmac)
-        print("Amend Duration : %.4f" % dmod)
-        return dmod
-
-
-if __name__ == '__main__':
-    face = 100
-    # coupon = 0.07
-    # maturity = 0.3647
-    # discount = 0.050163
-    frequency = 1/12
-    coupon = 0.0705
-    maturity = 0.0548
-    discount = 0.063226
-    b = Bond()
-    b.singleBondDuration(face, coupon, maturity, discount)

@@ -2,15 +2,19 @@ import pandas as pd
 from Common.MySQLConnector import MySQLConnector
 from SQLStatement.API_select import APIS
 import numpy as np
+from Common.GlobalConfig import GlobalConfig
+from PerformanceAnalysis.AdvancedPerformanceInfo_Stock import Stock
 
 
 class DGAPI(object):
     def __init__(self, productID, EndDate=None):
         m = APIS()
         sqls = m.setAPIS(productID, EndDate)
+        sqls_stock = m.stock(productID, EndDate)
         ms = MySQLConnector()
         connection = ms.getConn()
         self.df = pd.read_sql(sql=sqls, con=connection)
+        self.df_stock = pd.read_sql(sql=sqls_stock, con=connection)
         ms.closeConn()
 
     def annualized_return(self):
@@ -48,23 +52,40 @@ class DGAPI(object):
         print("Max Drawdown start from %s to %s" % (start_date, end_date))
         return "%.4f" % max_dd
 
-    def sharp(self):
-        nav_mean_daily = self.df['Daily_Return'].mean()
-        nav_std_daily = self.df['Daily_Return'].std()
+    def sharpe(self):
+        dailyReturn_mean = self.df['Daily_Return'].mean()
+        # nav_mean_daily = self.df['NAV'].mean()   #TODO: use the latest nav number as E(p)
+        # nav_latest = self.df['NAV'].values[-1]
+        # print(nav_latest)
 
-        sharp = (nav_mean_daily / nav_std_daily) * np.sqrt(250)
-        print("Sharp: %.4f" % sharp)
-        return "%.4f" % sharp
+        dailyReturn_std_daily = self.df['Daily_Return'].std()
+
+        # sharp = (nav_mean_daily / nav_std_daily) * np.sqrt(250)
+        sharpe = (dailyReturn_mean / dailyReturn_std_daily) * np.sqrt(250)
+        print("Sharpe: %.4f" % sharpe)
+        return "%.4f" % sharpe
+
+    def stockPortfolioVolatility(self):
+        # print(df)
+        s = Stock(self.df_stock)
+        s.portfolioVolatility()
 
 
 if __name__ == '__main__':
-    productid = 'FB0001'
-    enddate = '20181019'
-    print("Product ID : %s" % productid)
-    print("Static based on the data of : %s" % enddate)
-    dgapi = DGAPI(productid,enddate)
-    dgapi.annualized_return()
-    dgapi.leverage()
-    dgapi.volatility()
-    dgapi.max_drawdown()
-    dgapi.sharp()
+    gc = GlobalConfig()
+    productlist = gc.getConfig('product', 'list')
+    productlist = productlist.split(", ")
+    # productid = 'FB0003'
+    enddate = '20181130'
+    for p in productlist:
+        print("Product ID : %s" % p)
+        print("Static based on the data of : %s" % enddate)
+        dgapi = DGAPI(p,enddate)
+        dgapi.annualized_return()
+        dgapi.leverage()
+        dgapi.volatility()
+        dgapi.max_drawdown()
+        dgapi.sharpe()
+        dgapi.stockPortfolioVolatility()
+
+
