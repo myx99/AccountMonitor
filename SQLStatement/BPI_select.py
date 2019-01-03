@@ -7,6 +7,7 @@ class BPIS(object):
     def __init__(self):
         gc = GlobalConfig()
         path = gc.getConfig('SubConfigPath', 'BPI_conf_win')
+        # path = gc.getConfig('SubConfigPath', 'BPI_conf_linux')
         # print(path)
         self.cp = configparser.ConfigParser()
         self.cp.read(path, encoding='utf-8-sig')

@@ -3,30 +3,28 @@ from Common.GlobalConfig import GlobalConfig
 from Common.TradingDay import TradingDay
 
 
-class BPIH(object):
+class APIH(object):
     def __init__(self):
         config = GlobalConfig()
-        path = config.getConfig('SubConfigPath', 'BPI_conf_win')
-        # path = config.getConfig('SubConfigPath', 'BPI_conf_linux')
+        path = config.getConfig('SubConfigPath', 'API_conf_win')
+        # path = config.getConfig('SubConfigPath', 'API_conf_linux')
         self.cp = configparser.ConfigParser()
         self.cp.read(path, encoding='utf-8-sig')
-
 
     def getConfig(self, section, key):
         return self.cp.get(section, key)
 
-
-    def setBPIH(self):
-        BPI_table = self.getConfig('BPI_table', 'table')
+    def setAPIH(self):
+        API_table = self.getConfig('API_table', 'table')
         td = TradingDay()
         lastTradingDay = td.getLastTradingDay()
-        sqls = "select * from %s where Occur_Date = '%s'" % (BPI_table, lastTradingDay)
+        sqls = "select * from %s where Occur_Date = '%s'" % (API_table, lastTradingDay)
         return sqls
 
 
 if __name__ == '__main__':
-    m = BPIH()
-    sqls = m.setBPIH()
+    m = APIH()
+    sqls = m.setAPIH()
     from Common.MySQLConnector import MySQLConnector
     ms = MySQLConnector()
     connection = ms.getConn()

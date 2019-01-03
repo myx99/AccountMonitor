@@ -15,12 +15,12 @@ class Stock(object):
         df.loc[df['L_SCLB'] == 2, 'VC_SCDM'] += '.SZ'
 
         self.stocklist = df['VC_SCDM'].values
-        print("Stock List : %s" % self.stocklist)
+        # print("Stock List : %s" % self.stocklist)
 
         enddate = df['D_YWRQ'].iloc[0]
         self.startdate = (enddate - datetime.timedelta(days=180)).strftime("%Y%m%d")
         self.enddate = enddate.strftime("%Y%m%d")
-        print("start: %s | end: %s" % (self.startdate, self.enddate))
+        print("stock vol - start: %s | end: %s" % (self.startdate, self.enddate))
 
         self.df_input = df
 
@@ -65,13 +65,13 @@ class Stock(object):
         # writer.save()
         vol = df_pcntg['portfolio'].std() * np.sqrt(20)
         print("Stock Portfolio Volatility: %.4f" % vol)
-        return "%.4f" % vol
+        return vol
 
 
 if __name__ == '__main__':
-    p = "FB0003"
+    p = "FB0006"
     m = APIS()
-    sqls = m.stock(p,'20181204')
+    sqls = m.stock(p,'20181130')
     ms = MySQLConnector()
     connection = ms.getConn()
     df = pd.read_sql(sql=sqls, con=connection)

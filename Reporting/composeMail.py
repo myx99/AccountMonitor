@@ -2,8 +2,11 @@
 
 from Common.Email import Email
 from SQLStatement.BPI_html import BPIH
+from SQLStatement.API_html import APIH
+from Common.TradingDay import TradingDay
 from Common.MySQLConnector import MySQLConnector
 import pandas as pd
+
 
 from email.mime.multipart import MIMEMultipart  # 构建邮件头信息，包括发件人，接收人，标题等
 from email.mime.text import MIMEText  # 构建邮件正文，可以是text，也可以是HTML
@@ -14,15 +17,20 @@ from email.header import Header  # 专门构建邮件标题的，这样做，可
 
 def composeHTML():
     #get dataframe
-    m = BPIH()
-    sqls = m.setBPIH()
+    bpih = BPIH()
+    apih = APIH()
+    sqls_b = bpih.setBPIH()
+    sqls_a = apih.setAPIH()
+
     ms = MySQLConnector()
     connection = ms.getConn()
-    df = pd.read_sql(sql=sqls, con=connection)
+    df_b = pd.read_sql(sql=sqls_b, con=connection)
+    df_a = pd.read_sql(sql=sqls_a, con=connection)
     # print(df)
 
     # convert to HTML
-    df_html = df.to_html(escape=False)
+    df_html_b = df_b.to_html(escape=False)
+    df_html_a = df_a.to_html(escape=False)
 
     # compose HTML
     head = \
@@ -119,7 +127,7 @@ def composeHTML():
             </head>
             """
 
-    # 构造模板的附件（100）
+    # 构造模板的附件
     body = \
             """
             <body>
@@ -131,29 +139,38 @@ def composeHTML():
             <hr>
 
             <div class="content">
-                <h2>华菁资管</h2>
+                <h2>估值信息</h2>
                 <div>
                     <h4></h4>
-                    {df_html}
+                    {df_html_b}
+                <h2>常用指标信息</h2>
+                <div>
+                    <h4></h4>
+                    {df_html_a}
                 </div>
             <hr>
 
                 <p style="text-align: center">
-                    —— 说明：目前测试阶段只有产品基础信息，常用指标信息赶制中 ——
+                    —— 说明：估值信息从每日估值表筛选获取，常用指标信息根据估值信息计算得出 ——
                 </p>
             </div>
             </body>
-            """.format(df_html=df_html)
+            """.format(df_html_b=df_html_b,df_html_a=df_html_a)
     html_msg = "<html>" + head + body + "</html>"
     # 这里是将HTML文件输出，作为测试的时候，查看格式用的，正式脚本中可以注释掉
-    fout = open('D:\\PerformanceAnalysis\\html\\DailyBPI_report.html', 'w', encoding='UTF-8', newline='')
+    td = TradingDay()
+    ltd = td.getLastTradingDay()
+    filename = 'D:\\PerformanceAnalysis\\html\\DailyBPI_report_%s.html' % ltd
+    # filename = '/home/PerformanceAnalysis/Performance/AccountMonitor/html/DailyBPI_report_%s.html' % ltd
+
+    fout = open(filename, 'w', encoding='UTF-8', newline='')
     fout.write(html_msg)
     return html_msg
 
 
-html_msg = composeHTML()
-x = Email()
-x.sendEmail(html_msg)
+# html_msg = composeHTML()
+# x = Email()
+# x.sendEmail(html_msg)
 
 
 
