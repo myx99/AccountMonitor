@@ -2,6 +2,7 @@ import pandas as pd
 from Common.MySQLConnector import MySQLConnector
 from SQLStatement.API_select import APIS
 import numpy as np
+import math
 from Common.GlobalConfig import GlobalConfig
 from Common.TradingDay import TradingDay
 from PerformanceAnalysis.AdvancedPerformanceInfo_Stock import Stock
@@ -22,12 +23,20 @@ class DGAPI(object):
         self.df_purebond = pd.read_sql(sql=sqls_purebond, con=connection)
         self.df_convertablebond = pd.read_sql(sql=sqls_convertablebond, con=connection)
         ms.closeConn()
+        # print(self.df)
 
-    def annualized_return(self):
+        td = TradingDay()
+        self.checker_naturaldays = td.getProductNaturalDayCounts(productID, EndDate)
+        self.checker_tradedays = td.getProductTradingDayCounts(productID, EndDate)
+
+
+    def annualized_return(self):   # TODO: trade days and natural days need to calculate based on wind data
+        # add check logic for trade/natural day calculation
         naturalday = pd.period_range(self.df['Occur_Date'].iloc[0], self.df['Occur_Date'].iloc[-1], freq='D')
         tradeday = len(self.df['Occur_Date'])
-        print("Numbers of natural day: %d" % naturalday.__len__())
-        print("Numbers of trading day: %d" % tradeday)
+
+        print("Numbers of natural day: %d | checker: %d" % (naturalday.__len__(), self.checker_naturaldays))
+        print("Numbers of trading day: %d | checker: %d" % (tradeday, self.checker_tradedays))
         navdelta = self.df['Accumulated_NAV'].iloc[-1].astype(float) - 1
         an = navdelta * 365 / naturalday.__len__()
         print("Annualized return: %.4f" % an)
@@ -41,6 +50,8 @@ class DGAPI(object):
 
     def volatility(self):
         vol = self.df['Daily_Return'].std() * np.sqrt(250)
+        if math.isnan(vol):
+            vol = 0
         print("Volatility: %.4f" % vol)
         return round(vol, 4)
 
@@ -64,7 +75,12 @@ class DGAPI(object):
     def sharpe(self):
         dailyReturn_mean = self.df['Daily_Return'].mean()
         dailyReturn_std = self.df['Daily_Return'].std()
-        sharpe = (dailyReturn_mean / dailyReturn_std) * np.sqrt(250)
+        if dailyReturn_std == 0:
+            sharpe = 0
+        else:
+            sharpe = (dailyReturn_mean / dailyReturn_std) * np.sqrt(250)
+        if math.isnan(sharpe):
+            sharpe = 0
         print("Sharpe: %.4f" % sharpe)
         return round(sharpe, 4)
 
@@ -148,7 +164,7 @@ class DGAPI_insert(object):
                            pbd[1],              # pure bond duration (mature)
                            round(dv01, 4))               # dv01
         print(AIPS_daily_data)
-        print(type(AIPS_daily_data))
+        # print(type(AIPS_daily_data))
 
         # format
         insert_values = AIPS_daily_data
@@ -171,13 +187,14 @@ class DGAPI_insert(object):
         ms.closeConn()
 
 if __name__ == '__main__':
-    gc = GlobalConfig()
-    productlist = gc.getConfig('product', 'list')
-    productlist = productlist.split(", ")
-    p = 'FB0008'
-    enddate = '20181023'
-    test = DGAPI_insert(p, enddate)
-    test.insertArray()
+
+    # gc = GlobalConfig()
+    # productlist = gc.getConfig('product', 'list')
+    # productlist = productlist.split(", ")
+    p = 'FB0003'
+    enddate = '20190118'
+    # test = DGAPI_insert(p, enddate)
+    # test.insertArray()
 
 
     # for p in productlist:
@@ -200,24 +217,24 @@ if __name__ == '__main__':
     #     print("DV01 (pure bond): %.4f" % dv01)
     #     print("========================================")
 
-    # print("========================================")
-    # print("Product ID : %s" % p)
-    # print("Static based on the data of : %s" % enddate)
-    # dgapi = DGAPI(p, enddate)
-    # dgapi.annualized_return()
-    # y = dgapi.leverage()
-    # dgapi.volatility()
-    # dgapi.max_drawdown()
-    # dgapi.sharpe()
-    # dgapi.stockPortfolioVolatility()
-    # dgapi.convertablebondVolatility()
-    # x = dgapi.purebondPortfolioDuration()
-    # print(x)
-    # if x[0] == 0 or x[0] is None or x[1] == 0 or x[1] is None:
-    #     dv01 = 0
-    # else:
-    #     dv01 = float(x[0]) * float(y)
-    # print("DV01 (pure bond): %.4f" % dv01)
-    # print("========================================")
+    print("========================================")
+    print("Product ID : %s" % p)
+    print("Static based on the data of : %s" % enddate)
+    dgapi = DGAPI(p, enddate)
+    dgapi.annualized_return()
+    y = dgapi.leverage()
+    dgapi.volatility()
+    dgapi.max_drawdown()
+    dgapi.sharpe()
+    dgapi.stockPortfolioVolatility()
+    dgapi.convertablebondVolatility()
+    x = dgapi.purebondPortfolioDuration()
+    print(x)
+    if x[0] == 0 or x[0] is None or x[1] == 0 or x[1] is None:
+        dv01 = 0
+    else:
+        dv01 = float(x[0]) * float(y)
+    print("DV01 (pure bond): %.4f" % dv01)
+    print("========================================")
 
 

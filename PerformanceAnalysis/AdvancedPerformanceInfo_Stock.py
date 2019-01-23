@@ -41,6 +41,7 @@ class Stock(object):
                 sqls = """select TRADE_DT, S_DQ_PCTCHANGE "%s" from wind.AShareEODPrices where S_INFO_WINDCODE = '%s'and TRADE_DT >= '%s'and TRADE_DT <= '%s' order by TRADE_DT""" \
                        % (stock, stock, self.startdate, self.enddate)
                 df_stock = pd.read_sql(sql=sqls, con=oracle_connection)
+                # print(df_stock)
             else:
                 sqls = """select L_DATE as TRADE_DT, round((EN_LAST_PRICE - EN_YESTERDAY_CLOSE_PRICE)/EN_YESTERDAY_CLOSE_PRICE, 4) as "%s"
                           from O32_THISSTOCKINFO where VC_REPORT_CODE = "%s" and L_DATE >= '%s' and L_DATE <= '%s' order by L_DATE""" \
@@ -48,12 +49,13 @@ class Stock(object):
                 df_stock = pd.read_sql(sql=sqls, con=mysql_connection)
                 df_stock['TRADE_DT'] = df_stock['TRADE_DT'].astype(str)
                 df_stock[stock] = df_stock[stock] * 100
+                # print(df_stock)
             weight = self.df_input.loc[self.df_input['VC_SCDM'] == stock, 'EN_SZZJZ'].values
             # print(weight)
             df_stock[stock] = df_stock[stock].astype(float) * weight / 100
             # print(type(df_stock['TRADE_DT'][0]))
             df_pcntg = pd.merge(df_pcntg, df_stock, how='outer', on='TRADE_DT')
-            # df_pcntg = df_pcntg.fillna(0)
+            df_pcntg = df_pcntg.fillna(0)
             df_pcntg['portfolio'] += df_pcntg[stock]
             # print(df_pcntg)
         oc.closeConn()
@@ -61,6 +63,7 @@ class Stock(object):
 
         # print(list(df_pcntg['portfolio']))
         # writer = pd.ExcelWriter("D:\PerformanceAnalysis/output.xlsx")
+        # print(df_pcntg)
         # df_pcntg.to_excel(writer, 'Sheet2')
         # writer.save()
         vol = df_pcntg['portfolio'].std() * np.sqrt(20)
@@ -69,12 +72,12 @@ class Stock(object):
 
 
 if __name__ == '__main__':
-    p = "FB0006"
+    p = "FB0003"
     m = APIS()
-    sqls = m.stock(p,'20181130')
+    sqls = m.stock(p,'20190116')
     ms = MySQLConnector()
     connection = ms.getConn()
     df = pd.read_sql(sql=sqls, con=connection)
-    print(df)
+    # print(df)
     s = Stock(df)
     s.portfolioVolatility()

@@ -26,6 +26,16 @@ class TradingDay(object):
         oc.closeConn()
         return tradedays
 
+    def getNaturalDayCounts(self, start, end):
+        date1 = datetime.datetime.strptime(start, "%Y%m%d")
+        date2 = datetime.datetime.strptime(end, "%Y%m%d")
+        num = (date2 - date1).days
+        return num + 1
+
+    def getTradingDayCounts(self, start, end):
+        df = self.getDuration(start, end)
+        return len(df)
+
     def getProductDurationSinceFounded(self, productid, enddate=None):
         gc = GlobalConfig()
         start_temp = gc.getConfig(productid, 'Start_date')
@@ -43,12 +53,48 @@ class TradingDay(object):
         tradedays = self.getDuration(start, end)
         return tradedays
 
+    def getProductNaturalDurationSinceFounded(self, productid, enddate=None):
+        gc = GlobalConfig()
+        start_temp = gc.getConfig(productid, 'Start_date')
+        start = start_temp.replace("-", "")
+        end_temp = gc.getConfig(productid, 'End_date')
+        end_temp2 = end_temp.replace("-", "")
+        lasttradeday = self.getLastTradingDay()
+        if enddate is None:
+            if end_temp2 == "notyet":
+                end = lasttradeday
+            elif lasttradeday > end_temp2:
+                end = end_temp2
+        else:
+            end = enddate
+        date1 = datetime.datetime.strptime(start, "%Y%m%d")
+        date2 = datetime.datetime.strptime(end, "%Y%m%d")
+        num = (date2 - date1).days
+        return num + 1
+
+    def getProductTradingDayCounts(self, productid, enddate=None):
+        df = self.getProductDurationSinceFounded(productid, enddate)
+        return len(df)
+
+    def getProductNaturalDayCounts(self, productid, enddate=None):
+        num = self.getProductNaturalDurationSinceFounded(productid, enddate)
+        return num
+
 
 if __name__ == '__main__':
     m = TradingDay()
-    # print(m.getDuration("20160909","20181018"))
-    print(m.getLastTradingDay())
-    print(m.getProductDurationSinceFounded("FB0003", "20170710"))
+    # print(m.getDuration("20160909", "20181018"))
+    # print("last trading day: ")
+    # print(m.getLastTradingDay())
+    # print("trading day list since founded: ")
+    # print(m.getProductDurationSinceFounded("FB0003", "20190117"))
+    # print("natural days: ")
+    # print(m.getNaturalDayCounts("20170526", "20190116"))
+    # print("trading days: ")
+    # print(m.getTradingDayCounts("20170526", "20190116"))
+    print(m.getProductTradingDayCounts("FB0003", "20190116"))
+    print(m.getProductNaturalDayCounts("FB0003", "20190116"))
+
 
 
 

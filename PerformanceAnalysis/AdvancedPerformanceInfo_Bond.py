@@ -147,12 +147,13 @@ class convertableBond(object):
             df_cb[cb] = df_cb[cb].astype(float) * weight / 100
             # print(type(df_cb['TRADE_DT'][0]))
             df_pcntg = pd.merge(df_pcntg, df_cb, how='outer', on='TRADE_DT')
-            # df_pcntg = df_pcntg.fillna(0)
+            df_pcntg = df_pcntg.fillna(0)
             df_pcntg['portfolio'] += df_pcntg[cb]
             # print(df_pcntg)
         oc.closeConn()
         ms.closeConn()
 
+        # print(df_pcntg)
         # print(list(df_pcntg['portfolio']))
         # writer = pd.ExcelWriter("D:\PerformanceAnalysis/output.xlsx")
         # df_pcntg.to_excel(writer, 'Sheet2')
@@ -164,25 +165,25 @@ class convertableBond(object):
 
 if __name__ == '__main__':
     # ---- pure bond ------- #
-    p = "FB0006"
-    m = APIS()
-    sqls = m.pureBond(p, '20190102')
-    ms = MySQLConnector()
-    connection = ms.getConn()
-    df = pd.read_sql(sql=sqls, con=connection)
-    # print(df)
-    s = pureBond(df)
-    s.portfolioVolatility()
+    # p = "FB0006"
+    # m = APIS()
+    # sqls = m.pureBond(p, '20190102')
+    # ms = MySQLConnector()
+    # connection = ms.getConn()
+    # df = pd.read_sql(sql=sqls, con=connection)
+    # # print(df)
+    # s = pureBond(df)
+    # s.portfolioVolatility()
     # x = s.duration().split(",")
     # print(x[0], x[1])
 
     # ---- convertable bond ------- #
-    # p = "FB0008"
-    # m = APIS()
-    # sqls = m.convertableBond(p,'20181023')
-    # ms = MySQLConnector()
-    # connection = ms.getConn()
-    # df = pd.read_sql(sql=sqls, con=connection)
-    # print(df)
-    # s = convertableBond(df)
-    # s.portfolioVolatility()
+    p = "FB0003"
+    m = APIS()
+    sqls = m.convertableBond(p,'20190118')
+    ms = MySQLConnector()
+    connection = ms.getConn()
+    df = pd.read_sql(sql=sqls, con=connection)
+    print(df)
+    s = convertableBond(df)
+    s.portfolioVolatility()

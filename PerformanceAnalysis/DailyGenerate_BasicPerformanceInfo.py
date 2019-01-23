@@ -60,8 +60,8 @@ class DGBPI(object):
 
 
 if __name__ == '__main__':
-    pid = "FB0001"
-    bizdate = '2017-11-13'
+    pid = "FB0010"
+    bizdate = '2019-01-16'
     dgbpi = DGBPI()
     dgbpi.composeArray(pid, bizdate)
     dgbpi.insertArray()
