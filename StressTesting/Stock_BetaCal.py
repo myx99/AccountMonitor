@@ -1,15 +1,14 @@
-import configparser
-from Common.GlobalConfig import GlobalConfig
-from Common.TradingDay import TradingDay
 from Common.MySQLConnector import MySQLConnector
 from Common.OracleConnector import OracleConnector
 import pandas as pd
-from SQLStatement.API_select import APIS
 import datetime
-import numpy as np
+from StressTesting.StockFilter import StockFilter
+from Common.GlobalConfig import GlobalConfig
+import configparser
+from Common.TradingDay import TradingDay
 
 
-class Stock(object):
+class Stock_BetaCal(object):
     def __init__(self, df):
         df.loc[df['L_SCLB'] == 1, 'VC_SCDM'] += '.SH'
         df.loc[df['L_SCLB'] == 2, 'VC_SCDM'] += '.SZ'
@@ -18,13 +17,13 @@ class Stock(object):
         # print("Stock List : %s" % self.stocklist)
 
         enddate = df['D_YWRQ'].iloc[0]
-        self.startdate = (enddate - datetime.timedelta(days=180)).strftime("%Y%m%d")
+        self.startdate = (enddate - datetime.timedelta(days=120)).strftime("%Y%m%d")
         self.enddate = enddate.strftime("%Y%m%d")
         print("stock vol - start: %s | end: %s" % (self.startdate, self.enddate))
 
         self.df_input = df
 
-    def portfolioVolatility(self):
+    def Beta(self):
         td = TradingDay()
         tradedays = td.getDuration(self.startdate, self.enddate)
         df_pcntg = pd.DataFrame()
@@ -69,15 +68,3 @@ class Stock(object):
         vol = df_pcntg['portfolio'].std() * np.sqrt(20)
         print("Stock Portfolio Volatility: %.4f" % vol)
         return vol
-
-
-if __name__ == '__main__':
-    p = "FB0003"
-    m = APIS()
-    sqls = m.stock(p,'20190116')
-    ms = MySQLConnector()
-    connection = ms.getConn()
-    df = pd.read_sql(sql=sqls, con=connection)
-    print(df)
-    s = Stock(df)
-    s.portfolioVolatility()

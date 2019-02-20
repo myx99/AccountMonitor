@@ -127,7 +127,8 @@ class DGAPI_insert(object):
         if EndDate is None:
             td = TradingDay()
             self.EndDate = td.getLastTradingDay()
-        self.EndDate = EndDate
+        else:
+            self.EndDate = EndDate
 
     def insertArray(self):
         # Compose Array
