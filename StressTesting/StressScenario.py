@@ -18,10 +18,10 @@ class StressScenario(object):
     def getConfig(self, section, key):
         return self.cp.get(section, key)
 
-    def ScenarioDataRetrieve(self):
+    def ScenarioDataRetrieve(self, typelist):
         df_Scenario = pd.DataFrame(columns=('Scenario', 'Mild', 'Moderate', 'Severe'))
         # print(df_Scenario)
-        ScenarioList = self.getConfig('Scenario', 'ScenarioList')
+        ScenarioList = self.getConfig('Scenario', typelist)
         ScenarioList = ScenarioList.split(", ")
         # print(ScenarioList)
 
@@ -42,5 +42,11 @@ class StressScenario(object):
 
 if __name__ == '__main__':
     m = StressScenario()
-    x = m.ScenarioDataRetrieve()
+    x = m.ScenarioDataRetrieve('ScenarioList_Stock')
+    y = m.ScenarioDataRetrieve('ScenarioList_Bond')
+    z = m.ScenarioDataRetrieve('ScenarioList_ConvertibleBond')
     print(x)
+    print("-------")
+    print(y)
+    print("-------")
+    print(z)

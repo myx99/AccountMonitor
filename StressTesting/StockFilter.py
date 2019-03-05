@@ -50,35 +50,40 @@ class StockFilter(object):
                     % (valuation_table, column_productid, self.productID, column_date, td, column_kmdm, prefix, column_kmdm, filterout)
         return sqls
 
-    def getdf(self, sqls):
+    def getdf(self):
         prefix_alias_list = self.getConfig('StockCategory', 'prefix_list')
         SZ_SME_prefix = self.getConfig('StockCategory', 'SZ_SME_prefix')
         prefix_alias_list = prefix_alias_list.split(", ")
+        df_collector = []
+        df_collector_index = []
+
         for p in prefix_alias_list:
             prefix = self.getConfig('StockCategory', p)
             if p == 'SZ_mainboard_prefix':
-                self.prefix2sql_filterout()
-        ms = MySQLConnector()
-        connection = ms.getConn()
-        df = pd.read_sql(sql=sqls, con=connection)
-        return df
+                sqls = self.prefix2sql_filterout(prefix, SZ_SME_prefix)
+            else:
+                sqls = self.prefix2sql_general(prefix)
+
+            ms = MySQLConnector()
+            connection = ms.getConn()
+            df = pd.read_sql(sql=sqls, con=connection)
+            # print(df)
+            if not df.empty:
+                df_collector.append(df)
+                df_collector_index.append(p)
+        if df_collector_index:
+            return self.EndDate, df_collector_index, df_collector
+        else:
+            return self.EndDate, None, None
+
 
 if __name__ == '__main__':
     product = "FB0003"
-    prefix1 = 11020101
-    prefix2 = 11023101
-    filterout = 11023101002
     date = "20190211"
-    m = StockFilter()
-    sqls1 = m.prefix2sql_general(product, prefix1, date)
-    sqls2 = m.prefix2sql_SZmainboard(product, prefix2, filterout, date)
-    ms = MySQLConnector()
-    connection = ms.getConn()
-    df1 = pd.read_sql(sql=sqls1, con=connection)
-    df2 = pd.read_sql(sql=sqls2, con=connection)
-    print(df1, df2)
+    m = StockFilter(product, date)
+    e, x, y = m.getdf()
+    print(e)
+    print(x)
+    print(y)
 
-    general_prefix_list = ['SH_mainboard_prefix', 'SZ_mainboard_prefix', 'SZ_SME_prefix', 'SZ_GEM_prefix', 'SZ_HK_connect_prefix']
-    for gpl in general_prefix_list:
-        if gpl == 'SZ_mainboard_prefix':
-            sqls = m.prefix2sql_general(product, prefix1, date)
+
