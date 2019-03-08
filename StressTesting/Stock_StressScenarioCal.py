@@ -26,7 +26,7 @@ class Stock_StressCalculate(object):
         df_temp['Mild'] = df_temp['value_by_index'].astype(float) * df_temp['beta_by_index'].astype(float) * df_temp['Mild'].astype(float)
         df_temp['Moderate'] = df_temp['value_by_index'].astype(float) * df_temp['beta_by_index'].astype(float) * df_temp['Moderate'].astype(float)
         df_temp['Severe'] = df_temp['value_by_index'].astype(float) * df_temp['beta_by_index'].astype(float) * df_temp['Severe'].astype(float)
-        print(df_temp)
+        # print(df_temp)
 
         stock_result = ["StockLoss"]
         list = ['Mild', 'Moderate', 'Severe']
