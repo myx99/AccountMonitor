@@ -47,6 +47,14 @@ class BondFilter(object):
                     % (valuation_table, column_productid, self.productID, column_date, td, BondFuzzyCondition)
         return sqls
 
+    def get_allBond_sqls(self):
+        PBondPrefixList = self.getConfig('BondCategory', 'AllBond_prefix')
+        PBondPrefixList = PBondPrefixList.split(", ")
+
+        AllBondSqls = self.prefix2sql(PBondPrefixList)
+
+        return AllBondSqls
+
     def get_PBond_sqls(self):
         PBondPrefixList = self.getConfig('BondCategory', 'PureBond_prefix')
         PBondPrefixList = PBondPrefixList.split(", ")

@@ -117,8 +117,8 @@ class Stock_BetaCal(object):
 
 
 if __name__ == '__main__':
-    product = "FB0008"
-    date = "20190211"
+    product = "FB0003"
+    date = "20190228"
     m = StockFilter(product, date)
     e, x, y = m.getdf()
     # print(x)

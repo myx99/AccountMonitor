@@ -155,7 +155,7 @@ class Bond_CategorySum(object):
             beta_list.append(beta)
         df['Beta'] = beta_list
         df['Beta_by_value'] = df['Beta'] * df['EN_SZ']
-        # print(df)
+        print(df)
 
         df_result = pd.DataFrame()
         Scenario_list = ["ConvertibleBond_loss"]
@@ -171,6 +171,105 @@ class Bond_CategorySum(object):
 
         return df_result
 
+    def CreditCategory_AllBond(self, df):
+        if df.empty:
+            return None
+
+        oc = OracleConnector()
+        oracle_connection = oc.getConn()
+
+        df.loc[df['L_SCLB'] == 1, 'VC_SCDM'] += '.SH'
+        df.loc[df['L_SCLB'] == 2, 'VC_SCDM'] += '.SZ'
+        df.loc[df['L_SCLB'] == 3, 'VC_SCDM'] += '.IB'
+        bondlist = df['VC_SCDM'].values
+        enddate = df['D_YWRQ'].iloc[0]
+        enddate = enddate.strftime("%Y%m%d")
+        # print(bondlist)
+
+        bond_modidura_list = []
+        bond_modidura_list_yield = []
+        ratingcollector = []
+        for b in bondlist:
+            # ------   get rating   -------#
+            sqls = """select b_info_creditrating from (select * from wind.CBondRating where S_INFO_WINDCODE = '%s' order by ANN_DT DESC) where rownum =1""" % b
+            # print(sqls)
+            dfx = pd.read_sql(sql=sqls, con=oracle_connection)
+            # print(dfx)
+            if dfx.empty:
+                sqls1 = """select b_info_creditrating from (select * from wind.Cbondissuerrating
+                          where s_info_compname = (select b_info_issuer from wind.cbonddescription
+                          where S_INFO_WINDCODE = '%s')order by ANN_DT desc) where rownum=1""" % b
+                # print(sqls1)
+                dfx1 = pd.read_sql(sql=sqls1, con=oracle_connection)
+                # print(dfx1)
+                if dfx1.empty:
+                    ratingunit = 'NoRating'
+                else:
+                    ratingunit = dfx1['B_INFO_CREDITRATING'].values[0]
+            else:
+                ratingunit = dfx['B_INFO_CREDITRATING'].values[0]
+            ratingcollector.append(ratingunit)
+
+            # ------   get duration   -------#
+            sqlsd = """select b_anal_modidura_cnbd from wind.cbondanalysiscnbd
+                               where S_INFO_WINDCODE = '%s' and TRADE_DT = '%s'
+                               and B_ANAL_YIELD_CNBD = (select min(B_ANAL_YIELD_CNBD) from wind.cbondanalysiscnbd where S_INFO_WINDCODE = '%s' and TRADE_DT = '%s')""" \
+                   % (b, enddate, b, enddate)
+            # sqlsd_yield = """select b_anal_modidura_cnbd from wind.cbondanalysiscnbd
+            #                    where S_INFO_WINDCODE = '%s' and TRADE_DT = '%s'
+            #                    and B_ANAL_YIELD_CNBD = (select max(B_ANAL_YIELD_CNBD) from wind.cbondanalysiscnbd where S_INFO_WINDCODE = '%s' and TRADE_DT = '%s')""" \
+            #              % (b, enddate, b, enddate)
+            bond_modidura_df = pd.read_sql(sql=sqlsd, con=oracle_connection)
+            # bond_modidura_df_yield = pd.read_sql(sql=sqlsd_yield, con=oracle_connection)
+            # print(purebond_modidura_df)
+
+            # bond_modidura_yield = bond_modidura_df_yield['B_ANAL_MODIDURA_CNBD'].values[0]
+
+            # for cb in all bond, get modi duration
+            if bond_modidura_df.empty:
+                sqls_cb_in_allbond = """select b_anal_modifiedduration from wind.CBondValuation where S_INFO_WINDCODE = '%s' and TRADE_DT = '%s'""" % (b, enddate)
+                df_cb_in_allbond = pd.read_sql(sql=sqls_cb_in_allbond, con=oracle_connection)
+                bond_modidura = df_cb_in_allbond['B_ANAL_MODIFIEDDURATION'].values[0]
+            else:
+                bond_modidura = bond_modidura_df['B_ANAL_MODIDURA_CNBD'].values[0]
+
+            # print(purebond_modidura)
+            bond_modidura_list.append(bond_modidura)
+            # bond_modidura_list_yield.append(bond_modidura_yield)
+
+        oc.closeConn()
+        # ------   collect rating   -------#
+        # print(ratingcollector)
+        df['Rating'] = ratingcollector
+        # CategoryResult = df.groupby(by=['Rating'])['EN_SZ'].sum()
+        CategoryResult = df.groupby('Rating')['EN_SZ'].sum()
+        # print(CategoryResult)
+        ratinglist = list(CategoryResult.index)
+        # print(ratinglist)
+        valuesumlist = list(CategoryResult)
+        # print(valuesumlist)
+        df_credit_sum_duration = pd.DataFrame()
+        df_credit_sum_duration['Rate'] = ratinglist
+        df_credit_sum_duration['ValueSum'] = valuesumlist
+        df_credit_sum_duration['ValueSum'] = df_credit_sum_duration['ValueSum'].astype('int64')
+        # print(df_credit_sum_duration)
+
+        # ------   duration by rating   -------#
+        df['Duration_E'] = bond_modidura_list
+        # df['Duration_M'] = bond_modidura_list_yield
+        ratingdurationcollector = []
+        for r in ratinglist:
+            # print(r)
+            df_temp = df.loc[df['Rating'] == r]
+            # print(df_temp)
+            df_temp['purebond_percentage'] = df_temp['EN_SZ'] / df_temp['EN_SZ'].sum()
+            CreditCategoryDuration = (df_temp['Duration_E'] * df_temp['purebond_percentage']).sum()
+            # print(CreditCategoryDuration)
+            ratingdurationcollector.append(CreditCategoryDuration)
+        df_credit_sum_duration['RatingDuration'] = ratingdurationcollector
+        # print(df_credit_sum_duration)
+
+        return df_credit_sum_duration
 
 if __name__ == '__main__':
     product = "FB0009"
