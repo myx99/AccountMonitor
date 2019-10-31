@@ -29,7 +29,6 @@ class DGAPI(object):
         self.checker_naturaldays = td.getProductNaturalDayCounts(productID, EndDate)
         self.checker_tradedays = td.getProductTradingDayCounts(productID, EndDate)
 
-
     def annualized_return(self):   # TODO: trade days and natural days need to calculate based on wind data
         # add check logic for trade/natural day calculation
         naturalday = pd.period_range(self.df['Occur_Date'].iloc[0], self.df['Occur_Date'].iloc[-1], freq='D')
@@ -192,7 +191,7 @@ if __name__ == '__main__':
     # gc = GlobalConfig()
     # productlist = gc.getConfig('product', 'list')
     # productlist = productlist.split(", ")
-    p = 'FB0003'
+    p = 'FB0006'
     enddate = '20190118'
     # test = DGAPI_insert(p, enddate)
     # test.insertArray()
@@ -223,19 +222,19 @@ if __name__ == '__main__':
     print("Static based on the data of : %s" % enddate)
     dgapi = DGAPI(p, enddate)
     dgapi.annualized_return()
-    y = dgapi.leverage()
-    dgapi.volatility()
-    dgapi.max_drawdown()
-    dgapi.sharpe()
-    dgapi.stockPortfolioVolatility()
-    dgapi.convertablebondVolatility()
-    x = dgapi.purebondPortfolioDuration()
-    print(x)
-    if x[0] == 0 or x[0] is None or x[1] == 0 or x[1] is None:
-        dv01 = 0
-    else:
-        dv01 = float(x[0]) * float(y)
-    print("DV01 (pure bond): %.4f" % dv01)
+    # y = dgapi.leverage()
+    # dgapi.volatility()
+    # dgapi.max_drawdown()
+    # dgapi.sharpe()
+    # dgapi.stockPortfolioVolatility()
+    # dgapi.convertablebondVolatility()
+    # x = dgapi.purebondPortfolioDuration()
+    # print(x)
+    # if x[0] == 0 or x[0] is None or x[1] == 0 or x[1] is None:
+    #     dv01 = 0
+    # else:
+    #     dv01 = float(x[0]) * float(y)
+    # print("DV01 (pure bond): %.4f" % dv01)
     print("========================================")
 
 

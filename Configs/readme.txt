@@ -18,3 +18,10 @@ path = config.getConfig('SubConfigPath', 'API_conf_linux')
 filename = '/home/PerformanceAnalysis/Performance/AccountMonitor/html/DailyBPI_report_%s.html' % ltd
 
 7.bash script need to reformat to unix
+
+
+8. Oracle table
+wind.asharecalendar
+wind.AShareEODPrices
+wind.CBondEODPrices
+wind.cbondanalysiscnbd

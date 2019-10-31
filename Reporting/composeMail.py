@@ -3,6 +3,7 @@
 from Common.Email import Email
 from SQLStatement.BPI_html import BPIH
 from SQLStatement.API_html import APIH
+from SQLStatement.AnnualizedReturn_Monitor_html import ANRM
 from Common.TradingDay import TradingDay
 from Common.MySQLConnector import MySQLConnector
 import pandas as pd
@@ -19,18 +20,22 @@ def composeHTML():
     #get dataframe
     bpih = BPIH()
     apih = APIH()
+    anrm = ANRM()
     sqls_b = bpih.setBPIH()
     sqls_a = apih.setAPIH()
+    sqls_m = anrm.setANRM()
 
     ms = MySQLConnector()
     connection = ms.getConn()
     df_b = pd.read_sql(sql=sqls_b, con=connection)
     df_a = pd.read_sql(sql=sqls_a, con=connection)
+    df_m = pd.read_sql(sql=sqls_m, con=connection)
     # print(df)
 
     # convert to HTML
     df_html_b = df_b.to_html(escape=False)
     df_html_a = df_a.to_html(escape=False)
+    df_html_m = df_m.to_html(escape=False)
 
     # compose HTML
     head = \
@@ -139,10 +144,16 @@ def composeHTML():
             <hr>
 
             <div class="content">
+                <h2>报价产品年化收益率监控</h2>
+                <div>
+                    <h4></h4>
+                    {df_html_m}
+                <div>
                 <h2>估值信息</h2>
                 <div>
                     <h4></h4>
                     {df_html_b}
+                <div>
                 <h2>常用指标信息</h2>
                 <div>
                     <h4></h4>
@@ -155,7 +166,7 @@ def composeHTML():
                 </p>
             </div>
             </body>
-            """.format(df_html_b=df_html_b,df_html_a=df_html_a)
+            """.format(df_html_m=df_html_m,df_html_b=df_html_b,df_html_a=df_html_a)
     html_msg = "<html>" + head + body + "</html>"
     # 这里是将HTML文件输出，作为测试的时候，查看格式用的，正式脚本中可以注释掉
     td = TradingDay()

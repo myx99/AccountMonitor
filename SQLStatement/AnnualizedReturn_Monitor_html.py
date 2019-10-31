@@ -3,31 +3,29 @@ from Common.GlobalConfig import GlobalConfig
 from Common.TradingDay import TradingDay
 
 
-class BPIH(object):
+class ANRM(object):
     def __init__(self):
         config = GlobalConfig()
-        path = config.getConfig('SubConfigPath', 'BPI_conf_win')
-        # path = config.getConfig('SubConfigPath', 'BPI_conf_linux')
+        path = config.getConfig('SubConfigPath', 'monitor_win')
+        # path = config.getConfig('SubConfigPath', 'monitor_linux')
         self.cp = configparser.ConfigParser()
         self.cp.read(path, encoding='utf-8-sig')
-
 
     def getConfig(self, section, key):
         return self.cp.get(section, key)
 
-
-    def setBPIH(self):
-        BPI_table = self.getConfig('BPI_table', 'table')
+    def setANRM(self):
+        ANRM_table = self.getConfig('Annualized_Return_DB', 'table')
         td = TradingDay()
         lastTradingDay = td.getLastTradingDay()
         # add distinct to filer out duplicate items
-        sqls = "select distinct * from %s where Occur_Date = '%s'" % (BPI_table, lastTradingDay)
+        sqls = "select distinct * from %s where Occur_Date = '%s'" % (ANRM_table, lastTradingDay)
         return sqls
 
 
 if __name__ == '__main__':
-    m = BPIH()
-    sqls = m.setBPIH()
+    m = ANRM()
+    sqls = m.setANRM()
     from Common.MySQLConnector import MySQLConnector
     ms = MySQLConnector()
     connection = ms.getConn()

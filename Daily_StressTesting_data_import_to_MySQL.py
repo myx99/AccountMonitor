@@ -13,7 +13,7 @@ print(product_list)
 td = TradingDay()
 date = td.getLastTradingDay()
 # tradeday = "%s-%s-%s" % (lastTradingDay[:4], lastTradingDay[4:6], lastTradingDay[-2:])
-# date = "20190211"
+date = "20190930"
 
 #  Use product id and trade day to generate basic info and finish import to Basic Performance Info table
 for p in product_list:

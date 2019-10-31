@@ -36,8 +36,8 @@ class BPIS(object):
         return self.select_statement
 
 if __name__ == '__main__':
-    input_productid = 'FB0009'
-    input_date = '2018-09-21'
+    input_productid = 'FB0001'
+    input_date = '2019-10-11'
     datatype = 'Equity_NAV_Percentage'
     m = BPIS()
     print(m.setBPIS(input_productid, input_date, datatype))

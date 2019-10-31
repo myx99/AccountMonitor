@@ -211,7 +211,7 @@ def indexfuture(type):
     return [sum_loss_mild, sum_loss_moderate, sum_loss_severe]
 
 for p in product_list:
-    print("------ Product is : %s ------" % p)
+    print("------ Product: %s ------" % p)
     future(p, date)
 
 # future("FB0001", date)

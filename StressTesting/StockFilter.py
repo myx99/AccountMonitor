@@ -79,7 +79,7 @@ class StockFilter(object):
 
 if __name__ == '__main__':
     product = "FB0003"
-    date = "20190228"
+    date = "20190719"
     m = StockFilter(product, date)
     e, x, y = m.getdf()
     # print(e)

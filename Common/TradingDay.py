@@ -89,11 +89,12 @@ if __name__ == '__main__':
     # print("trading day list since founded: ")
     # print(m.getProductDurationSinceFounded("FB0003", "20190117"))
     # print("natural days: ")
-    # print(m.getNaturalDayCounts("20170526", "20190116"))
+    print(m.getNaturalDayCounts("20190515", "20190611"))
+    print(m.getTradingDayCounts("20190515", "20190611"))
     # print("trading days: ")
     # print(m.getTradingDayCounts("20170526", "20190116"))
-    print(m.getProductTradingDayCounts("FB0003", "20190116"))
-    print(m.getProductNaturalDayCounts("FB0003", "20190116"))
+    # print(m.getProductTradingDayCounts("FB0003", "20190116"))
+    # print(m.getProductNaturalDayCounts("FB0003", "20190116"))
 
 
 

@@ -28,6 +28,15 @@ class APIS(object):
         sqls = "select distinct * from %s where Product_ID = '%s' and Occur_Date <= '%s' order by Occur_Date" % (BPI_table, productID, td)
         return sqls
 
+    def setAPIS_withStartdate(self, productID, StartDate, EndDate=None):
+        BPI_table = self.getConfig('BPI_table', 'table')
+
+        if EndDate is None:
+            EndDate = self.ltd
+        td = "%s-%s-%s" % (EndDate[:4], EndDate[4:6], EndDate[-2:])
+        sqls = "select distinct * from %s where Product_ID = '%s' and Occur_Date <= '%s' and Occur_Date >= '%s' order by Occur_Date" % (BPI_table, productID, td, StartDate)
+        return sqls
+
     def setOriginal(self, productID, EndDate=None):
         valuation_table = self.getConfig('Valuation_Table_Info', 'table')
         column_productid = self.getConfig('Valuation_Table_Info', 'column_productid')

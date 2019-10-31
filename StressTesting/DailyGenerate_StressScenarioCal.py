@@ -92,6 +92,6 @@ class DGSSC(object):
 
 if __name__ == '__main__':
     product = "FB0009"
-    date = "20190211"
+    date = "20190628"
     dgssc = DGSSC(product, date)
     dgssc.Data_Insert()

@@ -18,7 +18,7 @@ tradeday = "%s-%s-%s" % (lastTradingDay[:4], lastTradingDay[4:6], lastTradingDay
 print(tradeday)
 
 # Import by designated day, use only when amend history data
-# td = "2018-10-15"
+# td = "2019-05-31"
 
 #  Use product id and trade day to generate basic info and finish import to Basic Performance Info table
 for p in product_list:

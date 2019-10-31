@@ -18,7 +18,8 @@ class APIH(object):
         API_table = self.getConfig('API_table', 'table')
         td = TradingDay()
         lastTradingDay = td.getLastTradingDay()
-        sqls = "select * from %s where Occur_Date = '%s'" % (API_table, lastTradingDay)
+        # add distinct to filer out duplicate items
+        sqls = "select distinct * from %s where Occur_Date = '%s'" % (API_table, lastTradingDay)
         return sqls
 
 
