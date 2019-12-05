@@ -15,12 +15,12 @@ print(product_list)
 td = TradingDay()
 lastTradingDay = td.getLastTradingDay()
 # tradeday = "%s-%s-%s" % (lastTradingDay[:4], lastTradingDay[4:6], lastTradingDay[-2:])
-print(lastTradingDay)
+
 
 # Import by designated day, use only when amend history data, for this api process, time format is yyyymmdd
-# td = "20181015"
+# lastTradingDay = "20191203"
 
-
+print(lastTradingDay)
 #  Use product id and trade day to generate basic info and finish import to Basic Performance Info table
 for p in product_list:
     print(p)

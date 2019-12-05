@@ -47,8 +47,15 @@ class pureBond(object):
             purebond_modidura_df = pd.read_sql(sql=sqls, con=oracle_connection)
             purebond_modidura_df_yield = pd.read_sql(sql=sqls_yield, con=oracle_connection)
             # print(purebond_modidura_df)
-            purebond_modidura = purebond_modidura_df['B_ANAL_MODIDURA_CNBD'].values[0]
-            purebond_modidura_yield = purebond_modidura_df_yield['B_ANAL_MODIDURA_CNBD'].values[0]
+            # add if/else to fix when bond default
+            if purebond_modidura_df.empty :
+                purebond_modidura = float(0)
+            else :
+                purebond_modidura = purebond_modidura_df['B_ANAL_MODIDURA_CNBD'].values[0]
+            if purebond_modidura_df_yield.empty:
+                purebond_modidura_yield = float(0)
+            else:
+                purebond_modidura_yield = purebond_modidura_df_yield['B_ANAL_MODIDURA_CNBD'].values[0]
             # print(purebond_modidura)
             purebond_modidura_list.append(purebond_modidura)
             purebond_modidura_list_yield.append(purebond_modidura_yield)

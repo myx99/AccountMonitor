@@ -110,7 +110,8 @@ class API_data_lookup(object):
         # print("Numbers of trading day: %d | checker: %d" % (tradeday, self.checker_tradedays))
         navdelta = self.df['Unit_NAV'].iloc[-1].astype(float) - 1
         # an = navdelta * 365 / naturalday.__len__()
-        an = navdelta * 365 / self.naturaldays
+        # an = navdelta * 365 / self.naturaldays
+        an = navdelta * 365 / (self.naturaldays - 1)
         print("Annualized Return: %.4f" % an)
         # ar_list = [naturalday.__len__(), tradeday, round(an, 4)]
         return an
@@ -154,7 +155,7 @@ class API_data_lookup(object):
 
 if __name__ == '__main__':
     # p = 'FB0006'
-    enddate = '20190801'
+    enddate = '20191118'
     #
     # print("========================================")
     # print("Product ID : %s" % p)
@@ -190,7 +191,7 @@ if __name__ == '__main__':
         print("Alert Level: %s" % status)
         print("========================================")
         # Compose Array
-        insert_data = (enddate, p, startdate, an, targetAnnualizedReturn, angap, status)
-        print(insert_data)
-
-        uvpa.AN_monitor_Insert(insert_data)
+        # insert_data = (enddate, p, startdate, an, targetAnnualizedReturn, angap, status)
+        # print(insert_data)
+        #
+        # uvpa.AN_monitor_Insert(insert_data)
